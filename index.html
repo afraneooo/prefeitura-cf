@@ -83,7 +83,7 @@ td.act{white-space:nowrap;text-align:right}
       <h2 id="formTitle">Nova lombada</h2>
       
       <!-- Botão para acionar a câmera e IA no celular -->
-      <button type="button" class="ai-btn" id="camTriggerBtn">📷 Capturar com Câmera</button>
+      <button type="button" class="ai-btn" id="camTriggerBtn">📷 Capturar com Câmera & IA</button>
       <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
 
       <form id="form" novalidate>
@@ -124,7 +124,7 @@ td.act{white-space:nowrap;text-align:right}
       </div>
       <div class="tablebox">
         <table>
-          <thead><tr><th>ID</th><th>Logradouro</th><th>Bairro</th><th>Tipo</th><th>Vertical</th><th>Horizontal</th><th>Observações</th><th></th></tr></thead>
+          <thead><tr><th>ID</th><th>Logradouro</th><th>Bairro</th><th>Tipo</th><th>Vertical</th><th>Horizontal</th><th>Foto</th><th>Observações</th><th></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
         <div id="empty" class="empty" hidden><b>Nenhuma lombada cadastrada</b>Preencha o formulário e clique em Salvar. Os dados ficam guardados e o PDF reúne todos os registros.</div>
@@ -141,7 +141,8 @@ td.act{white-space:nowrap;text-align:right}
 (function(){
   var $ = function(id){return document.getElementById(id)};
   var LS = "lombadas_vistoria_v1", LS_RESP = "lombadas_vistoria_resp";
-  var records = [], mode = "local", col = null, editingKey = null;
+  var records = [], editingKey = null;
+  var fotoAtual = ""; // Variável global para guardar a foto da captura atual
 
   function loadLocal(){ try{ var v = JSON.parse(localStorage.getItem(LS) || "[]"); return Array.isArray(v) ? v : []; }catch(e){ return []; } }
   function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify(records)); }catch(e){} }
@@ -149,7 +150,6 @@ td.act{white-space:nowrap;text-align:right}
   function toast(msg,ms){ var t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(function(){t.hidden=true},ms||3500); }
   function setStatus(kind, text){ var s=$("status"); s.className="status "+kind; $("statusText").textContent=text; }
   function sorted(list){ return list.slice().sort(function(a,b){ return String(a.num).localeCompare(String(b.num),"pt-BR",{numeric:true}); }); }
-  function clean(r){ return {num:r.num,logradouro:r.logradouro,bairro:r.bairro,tipo:r.tipo,vert:r.vert,hor:r.hor,obs:r.obs||"",updatedAt:r.updatedAt||Date.now()}; }
   function isProb(v){ return v==="Inexistente" || v==="Ruim"; }
   function pillClass(v){ return v==="Bom"?"p-good":v==="Regular"?"p-warn":"p-bad"; }
   function nextNum(){ var m=0; records.forEach(function(r){ var n=parseInt(r.num,10); if(!isNaN(n)&&n>m)m=n; }); return String(m+1); }
@@ -189,6 +189,19 @@ td.act{white-space:nowrap;text-align:right}
       var tt=document.createElement("td"); var tp=mk("span","pill "+(r.tipo==="Irregular"?"p-warn":"p-neutral"),r.tipo); tt.appendChild(tp); tr.appendChild(tt);
       var tv=document.createElement("td"); tv.appendChild(pill(r.vert)); tr.appendChild(tv);
       var th=document.createElement("td"); th.appendChild(pill(r.hor)); tr.appendChild(th);
+      
+      // Coluna da Foto com botão de visualização
+      var tf=document.createElement("td");
+      if(r.foto){
+        var btnFoto=mk("button","small","📷 Ver"); btnFoto.type="button";
+        btnFoto.style.background="#007bff"; btnFoto.style.color="#white"; btnFoto.style.border="none"; btnFoto.style.cursor="pointer";
+        btnFoto.addEventListener("click", function(){ abrirFoto(r.foto); });
+        tf.appendChild(btnFoto);
+      } else {
+        tf.appendChild(mk("span","", "-"));
+      }
+      tr.appendChild(tf);
+
       tr.appendChild(mk("td","obs",r.obs||""));
       var ta=mk("td","act");
       var be=mk("button","small","Editar"); be.type="button"; be.addEventListener("click",function(){ startEdit(r.key); });
@@ -204,13 +217,19 @@ td.act{white-space:nowrap;text-align:right}
   }
   function render(){ renderStrip(); renderRows(); }
 
+  // Função global para abrir a foto em nova aba
+  window.abrirFoto = function(base64Str) {
+    var novaJanela = window.open("");
+    novaJanela.document.write(`<iframe src="${base64Str}" frameborder="0" style="border:0; top:0; left:0; bottom:0; right:0; width:100%; height:100%;" allowfullscreen></iframe>`);
+  };
+
   function resetForm(){
-    editingKey=null; $("form").reset(); $("f-num").value=nextNum();
+    editingKey=null; $("form").reset(); $("f-num").value=nextNum(); fotoAtual="";
     $("formTitle").textContent="Nova lombada"; $("saveBtn").textContent="Salvar lombada"; $("cancelBtn").hidden=true; $("formError").hidden=true;
   }
   function startEdit(key){
     var r=records.filter(function(x){return x.key===key})[0]; if(!r) return;
-    editingKey=key;
+    editingKey=key; fotoAtual=r.foto||"";
     $("f-num").value=r.num; $("f-log").value=r.logradouro; $("f-bairro").value=r.bairro; $("f-tipo").value=r.tipo;
     $("f-vert").value=r.vert; $("f-hor").value=r.hor; $("f-obs").value=r.obs||"";
     $("formTitle").textContent="Editando lombada "+r.num; $("saveBtn").textContent="Salvar alterações"; $("cancelBtn").hidden=false;
@@ -230,7 +249,16 @@ td.act{white-space:nowrap;text-align:right}
 
   $("form").addEventListener("submit", async function(ev){
     ev.preventDefault();
-    var f={num:$("f-num").value.trim(),logradouro:$("f-log").value.trim(),bairro:$("f-bairro").value.trim(),tipo:$("f-tipo").value,vert:$("f-vert").value,hor:$("f-hor").value,obs:$("f-obs").value.trim()};
+    var f={
+      num:$("f-num").value.trim(),
+      logradouro:$("f-log").value.trim(),
+      bairro:$("f-bairro").value.trim(),
+      tipo:$("f-tipo").value,
+      vert:$("f-vert").value,
+      hor:$("f-hor").value,
+      obs:$("f-obs").value.trim(),
+      foto: fotoAtual
+    };
     var miss=[]; if(!f.num)miss.push("ID"); if(!f.logradouro)miss.push("logradouro"); if(!f.bairro)miss.push("bairro"); if(!f.tipo)miss.push("tipo de lombada"); if(!f.vert)miss.push("sinalização vertical"); if(!f.hor)miss.push("sinalização horizontal");
     var err=$("formError");
     if(miss.length){ err.textContent="Preencha: "+miss.join(", ")+"."; err.hidden=false; return; }
@@ -250,7 +278,6 @@ td.act{white-space:nowrap;text-align:right}
   try{ $("resp").value=localStorage.getItem(LS_RESP)||""; }catch(e){}
   $("resp").addEventListener("input", function(){ try{ localStorage.setItem(LS_RESP,$("resp").value); }catch(e){} });
 
-  /* ---------- Integração com Câmera, GPS e IA ---------- */
   /* ---------- Integração com Câmera, GPS e IA ---------- */
   $("camTriggerBtn").addEventListener("click", function(){
     $("cameraInput").click();
@@ -280,7 +307,7 @@ td.act{white-space:nowrap;text-align:right}
       }, {enableHighAccuracy: true});
     }
 
-    // 2. Redimensionar/comprimir a foto para não ultrapassar o limite de envio da Vercel (4.5 MB)
+    // 2. Redimensionar/comprimir a foto para o envio e armazenamento
     var img = new Image();
     img.onload = function() {
       var canvas = document.createElement("canvas");
@@ -294,14 +321,21 @@ td.act{white-space:nowrap;text-align:right}
       canvas.height = h;
       canvas.getContext("2d").drawImage(img, 0, 0, w, h);
       var base64Image = canvas.toDataURL("image/jpeg", 0.8);
+      
+      // Guarda a foto atual na variável global para ser salva no registro
+      fotoAtual = base64Image;
 
-      // 3. Enviar para o teu backend na Vercel
-      fetch("https://prefeitura-cf.vercel.app/api/analisar-lombada", {
+      // 3. Enviar para o backend na Vercel
+      fetch("/api/analisar-lombada", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: base64Image })
       })
-      .then(function(res){ return res.json(); })
+      .then(async function(res){
+        var texto = await res.text();
+        try { return JSON.parse(texto); }
+        catch(e) { throw new Error("Status " + res.status + ": " + texto.slice(0, 80)); }
+      })
       .then(function(dados){
         if(dados.error){
           toast("Erro na IA: " + dados.error, 6000);
@@ -318,8 +352,8 @@ td.act{white-space:nowrap;text-align:right}
           toast("Foto analisada pela IA com sucesso!");
         }
       })
-      .catch(function(){
-        toast("Erro ao comunicar com o servidor da Vercel.", 6000);
+      .catch(function(err){
+        toast("Falha: " + err.message, 8000);
       });
     };
     img.src = URL.createObjectURL(file);
