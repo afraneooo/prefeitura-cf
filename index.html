@@ -311,7 +311,12 @@ td.act{white-space:nowrap;text-align:right}
         $("f-vert").value = dados.vertical || "";
         $("f-hor").value = dados.horizontal || "";
         $("f-obs").value = dados.observacoes || "";
-        toast("Foto analisada pela IA com sucesso!");
+        
+        if (dados.lombada_detectada === false) {
+          toast("Nenhuma lombada identificada na foto. Veja as observações.", 5000);
+        } else {
+          toast("Foto analisada pela IA com sucesso!");
+        }
       })
       .catch(function(){
         toast("Erro ao comunicar com o servidor da Vercel.", 6000);
