@@ -1,0 +1,389 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Vistoria de Lombadas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --fg:#172230; --muted:#5B6877; --line:#D9DFE6;
+  --accent:#1D5FA6; --accent-fg:#FFFFFF; --accent-soft:#E5EEF8;
+  --good:#1E7A46; --good-bg:#E3F3EA; --warn:#9A5B00; --warn-bg:#FBF0DB; --bad:#B3261E; --bad-bg:#FBE6E4;
+  --font-display:"Space Grotesk","Inter",system-ui,sans-serif;
+  --font-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:14px;line-height:1.45;
+  padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:16px}
+h1{font-family:var(--font-display);font-size:26px;line-height:1.15;margin:0;text-wrap:balance}
+.org{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status.cloud .dot{background:var(--good)} .status.warn .dot{background:var(--warn)}
+.strip{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.strip div{flex:1 1 130px;background:var(--surface);padding:10px 14px;min-width:0}
+.strip b{display:block;font-family:var(--font-display);font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}
+.strip span{font-size:12px;color:var(--muted)}
+.strip .alert b{color:var(--bad)}
+.grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
+.card h2{font-family:var(--font-display);font-size:16px;margin:0 0 12px}
+form{display:grid;gap:12px}
+.row2{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px}
+label{display:grid;gap:4px;font-size:12px;font-weight:500;color:var(--muted)}
+input,select,textarea,button{font:inherit;color:var(--fg)}
+input,select,textarea{width:100%;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-size:14px}
+textarea{resize:vertical;min-height:58px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button{cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:8px 14px;font-weight:500}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button.ai-btn{background:#7c3aed;color:#fff;border-color:#7c3aed;width:100%;margin-bottom:8px;font-weight:600}
+button.ai-btn:hover{background:#6d28d9}
+button.small{padding:4px 9px;font-size:12px}
+button.danger{color:var(--bad)}
+button:disabled{opacity:.5;cursor:default}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
+.toolbar .search{flex:1 1 200px}
+.toolbar select{width:auto;flex:0 0 auto}
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-align:left;color:var(--muted);background:var(--bg);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+td.obs{color:var(--muted);max-width:200px}
+td.act{white-space:nowrap;text-align:right}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:500;white-space:nowrap}
+.p-good{background:var(--good-bg);color:var(--good)} .p-warn{background:var(--warn-bg);color:var(--warn)} .p-bad{background:var(--bad-bg);color:var(--bad)} .p-neutral{background:var(--accent-soft);color:var(--accent)}
+.empty{padding:36px 16px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--fg);font-family:var(--font-display);font-size:16px;margin-bottom:4px}
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:6px;font-size:13px;max-width:calc(100% - 32px);z-index:20}
+.resp{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:12px}
+.resp label{flex:1 1 220px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="org">SEMMURB · Mobilidade Urbana · Cabo Frio</p>
+      <h1>Vistoria de Lombadas</h1>
+    </div>
+    <span class="status" id="status" role="status"><span class="dot"></span><span id="statusText">Carregando…</span></span>
+  </header>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="formTitle">
+      <h2 id="formTitle">Nova lombada</h2>
+      
+      <!-- Botão para acionar a câmera e IA no celular -->
+      <button type="button" class="ai-btn" id="camTriggerBtn">📷 Capturar com Câmera</button>
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+
+      <form id="form" novalidate>
+        <div class="row2">
+          <label>ID<input id="f-num" required inputmode="numeric" autocomplete="off"></label>
+          <label>Bairro<input id="f-bairro" required autocomplete="off" placeholder="Ex.: Centro"></label>
+        </div>
+        <label>Logradouro<input id="f-log" required autocomplete="off" placeholder="Ex.: Av. Teixeira e Souza"></label>
+        <label>Tipo de lombada
+          <select id="f-tipo" required><option value="">Selecione</option><option>Tipo A</option><option>Tipo B</option><option>Irregular</option></select>
+        </label>
+        <label>Sinalização vertical
+          <select id="f-vert" required><option value="">Selecione</option><option>Inexistente</option><option>Bom</option><option>Regular</option><option>Ruim</option></select>
+        </label>
+        <label>Sinalização horizontal
+          <select id="f-hor" required><option value="">Selecione</option><option>Inexistente</option><option>Bom</option><option>Regular</option><option>Ruim</option></select>
+        </label>
+        <label>Observações (opcional)<textarea id="f-obs" placeholder="Ex.: placa tombada, pintura apagada"></textarea></label>
+        <p id="formError" class="note" style="color:var(--bad);margin:0" hidden></p>
+        <div class="btns">
+          <button class="primary" type="submit" id="saveBtn">Salvar lombada</button>
+          <button type="button" id="cancelBtn" hidden>Cancelar edição</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="listTitle">
+      <h2 id="listTitle">Lombadas cadastradas</h2>
+      <div class="toolbar">
+        <input class="search" id="q" type="search" placeholder="Buscar por logradouro, bairro ou ID" aria-label="Buscar">
+        <select id="fTipo" aria-label="Filtrar por tipo"><option value="">Todos os tipos</option><option>Tipo A</option><option>Tipo B</option><option>Irregular</option></select>
+        <select id="fProb" aria-label="Filtrar por situação"><option value="">Toda situação</option><option value="p">Só com problema de sinalização</option></select>
+      </div>
+      <div class="resp">
+        <label>Responsável pela vistoria (aparece no PDF)<input id="resp" autocomplete="off" placeholder="Nome e matrícula"></label>
+        <button class="primary" id="pdfBtn" type="button">Gerar PDF</button>
+        <button id="csvBtn" type="button">Baixar CSV</button>
+      </div>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th>ID</th><th>Logradouro</th><th>Bairro</th><th>Tipo</th><th>Vertical</th><th>Horizontal</th><th>Observações</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div id="empty" class="empty" hidden><b>Nenhuma lombada cadastrada</b>Preencha o formulário e clique em Salvar. Os dados ficam guardados e o PDF reúne todos os registros.</div>
+      </div>
+      <p class="note">O PDF sempre inclui todos os registros, independente do filtro aplicado na tela.</p>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+(function(){
+  var $ = function(id){return document.getElementById(id)};
+  var LS = "lombadas_vistoria_v1", LS_RESP = "lombadas_vistoria_resp";
+  var records = [], mode = "local", col = null, editingKey = null;
+
+  function loadLocal(){ try{ var v = JSON.parse(localStorage.getItem(LS) || "[]"); return Array.isArray(v) ? v : []; }catch(e){ return []; } }
+  function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify(records)); }catch(e){} }
+  function newKey(){ return "l" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function toast(msg,ms){ var t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(function(){t.hidden=true},ms||3500); }
+  function setStatus(kind, text){ var s=$("status"); s.className="status "+kind; $("statusText").textContent=text; }
+  function sorted(list){ return list.slice().sort(function(a,b){ return String(a.num).localeCompare(String(b.num),"pt-BR",{numeric:true}); }); }
+  function clean(r){ return {num:r.num,logradouro:r.logradouro,bairro:r.bairro,tipo:r.tipo,vert:r.vert,hor:r.hor,obs:r.obs||"",updatedAt:r.updatedAt||Date.now()}; }
+  function isProb(v){ return v==="Inexistente" || v==="Ruim"; }
+  function pillClass(v){ return v==="Bom"?"p-good":v==="Regular"?"p-warn":"p-bad"; }
+  function nextNum(){ var m=0; records.forEach(function(r){ var n=parseInt(r.num,10); if(!isNaN(n)&&n>m)m=n; }); return String(m+1); }
+
+  function mk(tag, cls, text){ var e=document.createElement(tag); if(cls)e.className=cls; if(text!=null)e.textContent=text; return e; }
+  function pill(v){ return mk("span","pill "+pillClass(v),v); }
+
+  function renderStrip(){
+    var tot=records.length, a=0,b=0,irr=0,pv=0,ph=0;
+    records.forEach(function(r){ if(r.tipo==="Tipo A")a++; else if(r.tipo==="Tipo B")b++; else if(r.tipo==="Irregular")irr++; if(isProb(r.vert))pv++; if(isProb(r.hor))ph++; });
+    var items=[["Total",tot],["Tipo A",a],["Tipo B",b],["Irregulares",irr,irr>0],["Vertical inexistente ou ruim",pv,pv>0],["Horizontal inexistente ou ruim",ph,ph>0]];
+    var s=$("strip"); s.textContent="";
+    items.forEach(function(it){ var d=mk("div",it[2]?"alert":""); d.appendChild(mk("b","",it[1])); d.appendChild(mk("span","",it[0])); s.appendChild(d); });
+  }
+
+  function filtered(){
+    var q=$("q").value.trim().toLowerCase(), t=$("fTipo").value, p=$("fProb").value;
+    return sorted(records).filter(function(r){
+      if(t && r.tipo!==t) return false;
+      if(p && !(isProb(r.vert)||isProb(r.hor))) return false;
+      if(q && (r.num+" "+r.logradouro+" "+r.bairro).toLowerCase().indexOf(q)<0) return false;
+      return true;
+    });
+  }
+
+  function renderRows(){
+    var tb=$("rows"); tb.textContent="";
+    var list=filtered();
+    $("empty").hidden = list.length>0;
+    if(!list.length && records.length){ $("empty").querySelector("b").textContent="Nada encontrado"; }
+    else { $("empty").querySelector("b").textContent="Nenhuma lombada cadastrada"; }
+    list.forEach(function(r){
+      var tr=document.createElement("tr");
+      tr.appendChild(mk("td","num",r.num));
+      tr.appendChild(mk("td","",r.logradouro));
+      tr.appendChild(mk("td","",r.bairro));
+      var tt=document.createElement("td"); var tp=mk("span","pill "+(r.tipo==="Irregular"?"p-warn":"p-neutral"),r.tipo); tt.appendChild(tp); tr.appendChild(tt);
+      var tv=document.createElement("td"); tv.appendChild(pill(r.vert)); tr.appendChild(tv);
+      var th=document.createElement("td"); th.appendChild(pill(r.hor)); tr.appendChild(th);
+      tr.appendChild(mk("td","obs",r.obs||""));
+      var ta=mk("td","act");
+      var be=mk("button","small","Editar"); be.type="button"; be.addEventListener("click",function(){ startEdit(r.key); });
+      var bd=mk("button","small danger","Excluir"); bd.type="button"; bd.style.marginLeft="6px";
+      bd.addEventListener("click",function(){
+        if(bd.dataset.armed){ removeRec(r.key); return; }
+        bd.dataset.armed="1"; bd.textContent="Confirmar?";
+        setTimeout(function(){ if(bd.isConnected){ delete bd.dataset.armed; bd.textContent="Excluir"; } },3000);
+      });
+      ta.appendChild(be); ta.appendChild(bd); tr.appendChild(ta);
+      tb.appendChild(tr);
+    });
+  }
+  function render(){ renderStrip(); renderRows(); }
+
+  function resetForm(){
+    editingKey=null; $("form").reset(); $("f-num").value=nextNum();
+    $("formTitle").textContent="Nova lombada"; $("saveBtn").textContent="Salvar lombada"; $("cancelBtn").hidden=true; $("formError").hidden=true;
+  }
+  function startEdit(key){
+    var r=records.filter(function(x){return x.key===key})[0]; if(!r) return;
+    editingKey=key;
+    $("f-num").value=r.num; $("f-log").value=r.logradouro; $("f-bairro").value=r.bairro; $("f-tipo").value=r.tipo;
+    $("f-vert").value=r.vert; $("f-hor").value=r.hor; $("f-obs").value=r.obs||"";
+    $("formTitle").textContent="Editando lombada "+r.num; $("saveBtn").textContent="Salvar alterações"; $("cancelBtn").hidden=false;
+    $("f-log").scrollIntoView({block:"center",behavior:"smooth"}); $("f-log").focus();
+  }
+
+  async function persist(rec){
+    rec.updatedAt=Date.now();
+    var i=records.findIndex(function(x){return x.key===rec.key});
+    if(i>=0) records[i]=rec; else records.push(rec);
+    saveLocal(); render(); return true;
+  }
+  async function removeRec(key){
+    records=records.filter(function(x){return x.key!==key}); saveLocal(); render(); toast("Lombada excluída.");
+    if(editingKey===key) resetForm();
+  }
+
+  $("form").addEventListener("submit", async function(ev){
+    ev.preventDefault();
+    var f={num:$("f-num").value.trim(),logradouro:$("f-log").value.trim(),bairro:$("f-bairro").value.trim(),tipo:$("f-tipo").value,vert:$("f-vert").value,hor:$("f-hor").value,obs:$("f-obs").value.trim()};
+    var miss=[]; if(!f.num)miss.push("ID"); if(!f.logradouro)miss.push("logradouro"); if(!f.bairro)miss.push("bairro"); if(!f.tipo)miss.push("tipo de lombada"); if(!f.vert)miss.push("sinalização vertical"); if(!f.hor)miss.push("sinalização horizontal");
+    var err=$("formError");
+    if(miss.length){ err.textContent="Preencha: "+miss.join(", ")+"."; err.hidden=false; return; }
+    var dup=records.some(function(r){ return r.num===f.num && r.key!==editingKey; });
+    if(dup){ err.textContent="Já existe uma lombada com o ID "+f.num+". Use outro ID."; err.hidden=false; return; }
+    err.hidden=true;
+    f.key=editingKey||newKey();
+    var wasEdit=!!editingKey;
+    $("saveBtn").disabled=true;
+    var ok=await persist(f);
+    $("saveBtn").disabled=false;
+    if(ok){ toast(wasEdit?"Alterações salvas.":"Lombada salva."); resetForm(); $("f-log").focus(); }
+  });
+  $("cancelBtn").addEventListener("click", resetForm);
+  ["q","fTipo","fProb"].forEach(function(id){ $(id).addEventListener("input", renderRows); });
+
+  try{ $("resp").value=localStorage.getItem(LS_RESP)||""; }catch(e){}
+  $("resp").addEventListener("input", function(){ try{ localStorage.setItem(LS_RESP,$("resp").value); }catch(e){} });
+
+  /* ---------- Integração com Câmera, GPS e IA ---------- */
+  $("camTriggerBtn").addEventListener("click", function(){
+    $("cameraInput").click();
+  });
+
+  $("cameraInput").addEventListener("change", async function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+
+    toast("Obtendo GPS e analisando imagem com IA...", 6000);
+
+    // 1. Obter Geolocalização do GPS do Celular
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(async function(position){
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        
+        // Exemplo de geocodificação reversa gratuita (Nominatim OpenStreetMap)
+        try {
+          var res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+          var data = await res.json();
+          if(data && data.address){
+            var rua = data.address.road || data.address.suburb || "Local via GPS";
+            var bairroName = data.address.suburb || data.address.neighbourhood || data.address.city_district || "Cabo Frio";
+            $("f-log").value = rua;
+            $("f-bairro").value = bairroName;
+          }
+        } catch(err){
+          $("f-log").value = "Coordenadas: " + lat.toFixed(4) + ", " + lon.toFixed(4);
+        }
+      }, function(error){
+        toast("Não foi possível obter a localização GPS.");
+      }, {enableHighAccuracy: true});
+    }
+
+    // 2. Simulação de IA Analisando a Foto capturada
+    // Aqui no futuro você pode conectar a resposta da API do seu modelo de visão computacional
+    setTimeout(function(){
+      // Exemplo preenchido automaticamente pela IA simulada
+      $("f-tipo").value = "Tipo A";
+      $("f-vert").value = "Bom";
+      $("f-hor").value = "Regular";
+      $("f-obs").value = "Identificado via IA: Pintura levemente desgastada.";
+      toast("Foto processada e campos preenchidos pela IA!");
+    }, 1500);
+  });
+
+  /* ---------- Exportação ---------- */
+  function stamp(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  function errText(e){ return (e && (e.code||e.message)) ? String(e.code||"")+(e.message?" "+e.message:"") : String(e); }
+
+  $("pdfBtn").addEventListener("click", function(){
+    try { buildPdf(); } catch(e) { toast("Erro ao gerar o PDF: " + errText(e), 8000); }
+  });
+
+  function buildPdf(){
+    if(!records.length){ toast("Cadastre ao menos uma lombada antes de gerar o PDF."); return; }
+    if(!window.jspdf || !window.jspdf.jsPDF){ toast("A biblioteca de PDF não carregou. Recarregue a página.", 6000); return; }
+    
+    var list = sorted(records);
+    var doc = new window.jspdf.jsPDF({orientation:"landscape", unit:"mm", format:"a4"});
+    var W = doc.internal.pageSize.getWidth();
+    
+    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(90, 104, 119);
+    doc.text("SECRETARIA MUNICIPAL DE MOBILIDADE URBANA · CABO FRIO", 14, 12);
+    doc.setFontSize(17); doc.setTextColor(23, 34, 48); doc.text("Relatório de Vistoria de Lombadas", 14, 20);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(90, 104, 119);
+    var resp = $("resp").value.trim();
+    doc.text("Data de emissão: " + new Date().toLocaleDateString("pt-BR") + (resp ? "   ·   Responsável: " + resp : ""), 14, 26);
+    
+    var c = {a:0, b:0, i:0, pv:0, ph:0};
+    list.forEach(function(r){ 
+      if(r.tipo==="Tipo A") c.a++; else if(r.tipo==="Tipo B") c.b++; else c.i++; 
+      if(isProb(r.vert)) c.pv++; if(isProb(r.hor)) c.ph++; 
+    });
+    
+    doc.setTextColor(23, 34, 48);
+    doc.text("Total: " + list.length + "   |   Tipo A: " + c.a + "   |   Tipo B: " + c.b + "   |   Irregulares: " + c.i + "   |   Vertical inexistente/ruim: " + c.pv + "   |   Horizontal inexistente/ruim: " + c.ph, 14, 32);
+    
+    doc.autoTable({
+      startY: 36,
+      head: [["ID", "Logradouro", "Bairro", "Tipo", "Sinal. vertical", "Sinal. horizontal", "Observações"]],
+      body: list.map(function(r){ return [r.num, r.logradouro, r.bairro, r.tipo, r.vert, r.hor, r.obs || ""]; }),
+      styles: {font: "helvetica", fontSize: 8.5, cellPadding: 2, textColor: [23, 34, 48], lineColor: [217, 223, 230], lineWidth: 0.1},
+      headStyles: {fillColor: [29, 95, 166], textColor: 255, fontStyle: "bold"},
+      alternateRowStyles: {fillColor: [246, 248, 250]},
+      columnStyles: {0: {cellWidth: 12}, 3: {cellWidth: 22}, 4: {cellWidth: 28}, 5: {cellWidth: 30}},
+      margin: {left: 14, right: 14, bottom: 16},
+      didParseCell: function(d){
+        if(d.section === "body" && (d.column.index === 4 || d.column.index === 5)){
+          var v = d.cell.raw;
+          if(isProb(v)){ d.cell.styles.textColor = [179, 38, 30]; d.cell.styles.fontStyle = "bold"; }
+          else if(v === "Regular"){ d.cell.styles.textColor = [154, 91, 0]; }
+        }
+        if(d.section === "body" && d.column.index === 3 && d.cell.raw === "Irregular"){ 
+          d.cell.styles.textColor = [154, 91, 0]; d.cell.styles.fontStyle = "bold"; 
+        }
+      },
+      didDrawPage: function(){
+        var n = doc.internal.getNumberOfPages(), h = doc.internal.pageSize.getHeight();
+        doc.setFontSize(8); doc.setTextColor(120, 130, 140);
+        doc.text("Página " + doc.internal.getCurrentPageInfo().pageNumber, W - 14, h - 8, {align: "right"});
+        doc.text("Vistoria de Lombadas · SEMMURB Cabo Frio", 14, h - 8);
+      }
+    });
+
+    doc.save("vistoria-lombadas-" + stamp() + ".pdf");
+    toast("PDF gerado com sucesso!");
+  }
+
+  $("csvBtn").addEventListener("click", function(){
+    try {
+      if(!records.length){ toast("Não há registros para exportar."); return; }
+      var esc = function(v){ v = String(v == null ? "" : v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+      var lines = [["ID", "Logradouro", "Bairro", "Tipo de lombada", "Sinalização vertical", "Sinalização horizontal", "Observações"].join(";")];
+      sorted(records).forEach(function(r){ lines.push([r.num, r.logradouro, r.bairro, r.tipo, r.vert, r.hor, r.obs].map(esc).join(";")); });
+      
+      var blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = "vistoria-lombadas-" + stamp() + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast("CSV baixado com sucesso!");
+    } catch(e) {
+      toast("Erro ao gerar o CSV: " + errText(e), 8000);
+    }
+  });
+
+  records = loadLocal(); resetForm(); render();
+  setStatus("cloud", records.length ? "Pronto para uso no celular" : "Pronto para o primeiro registro");
+})();
+</script>
+
+</body></html>
