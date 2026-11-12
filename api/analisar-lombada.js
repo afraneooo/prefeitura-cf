@@ -18,41 +18,25 @@ export default async function handler(req, res) {
 
     const prompt = `Você é um engenheiro de tráfego especialista em vistorias de lombadas urbanas em Cabo Frio.
     Analise a imagem enviada e retorne estritamente um objeto JSON válido com estes exatos campos:
-    - "lombada_detectada": true se houver uma lombada, quebra-molas ou via sendo vistoriada na foto; false se for uma foto aleatória (ex: mesa, parede, rosto, objeto sem relação com trânsito).
-    - "tipo": se lombada_detectada for true, classifique entre "Tipo A", "Tipo B" ou "Irregular". Se for false, deixe "".
-    - "vertical": avalie a sinalização vertical (placas) entre "Bom", "Regular", "Ruim" ou "Inexistente". Se lombada_detectada for false, deixe "".
-    - "horizontal": avalie a sinalização horizontal (pintura no chão) entre "Bom", "Regular", "Ruim" ou "Inexistente". Se lombada_detectada for false, deixe "".
-    - "observacoes": se lombada_detectada for true, descreva brevemente o estado da lombada e da sinalização. Se for false, descreva brevemente o que aparece na foto e avise que nenhuma lombada foi identificada.`;
+    - "lombada_detectada": true se houver uma lombada ou via sendo vistoriada; false se for uma foto aleatória sem relação com trânsito.
+    - "tipo": se lombada_detectada for true, classifique entre "Tipo A", "Tipo B" ou "Irregular". Se false, deixe "".
+    - "vertical": avalie placas entre "Bom", "Regular", "Ruim" ou "Inexistente". Se false, deixe "".
+    - "horizontal": avalie pintura no chão entre "Bom", "Regular", "Ruim" ou "Inexistente". Se false, deixe "".
+    - "observacoes": se true, descreva o estado da lombada. Se false, descreva o que aparece na foto e avise que nenhuma lombada foi identificada.`;
 
-    // Função auxiliar com tentativa automática caso o servidor esteja com alta demanda
-    async function chamarGemini(modelo) {
-      return await ai.models.generateContent({
-        model: modelo,
-        contents: [
-          prompt,
-          { inlineData: { data: base64Data, mimeType: "image/jpeg" } }
-        ],
-        config: { responseMimeType: "application/json" }
-      });
-    }
-
-    let response;
-    try {
-      // Tenta primeiro no modelo principal
-      response = await chamarGemini("gemini-3.8-flash");
-    } catch (err) {
-      // Se der erro de alta demanda (503 / 429), tenta automaticamente no modelo alternativo estável
-      response = await chamarGemini("gemini-2.5-flash");
-    }
+    const response = await ai.models.generateContent({
+      model: "gemini-3.6-flash",
+      contents: [
+        prompt,
+        { inlineData: { data: base64Data, mimeType: "image/jpeg" } }
+      ],
+      config: { responseMimeType: "application/json" }
+    });
 
     const dados = JSON.parse(response.text);
     return res.status(200).json(dados);
 
   } catch (error) {
-    const msg = error.message || "";
-    if (msg.includes("503") || msg.includes("overloaded") || msg.includes("429")) {
-      return res.status(503).json({ error: "Servidores da IA com alta demanda no momento. Aguarde 5 segundos e tente novamente." });
-    }
-    return res.status(500).json({ error: msg });
+    return res.status(500).json({ error: error.message || "Erro interno na IA" });
   }
 }
