@@ -251,6 +251,7 @@ td.act{white-space:nowrap;text-align:right}
   $("resp").addEventListener("input", function(){ try{ localStorage.setItem(LS_RESP,$("resp").value); }catch(e){} });
 
   /* ---------- Integração com Câmera, GPS e IA ---------- */
+  /* ---------- Integração com Câmera, GPS e IA ---------- */
   $("camTriggerBtn").addEventListener("click", function(){
     $("cameraInput").click();
   });
@@ -259,42 +260,64 @@ td.act{white-space:nowrap;text-align:right}
     var file = e.target.files[0];
     if(!file) return;
 
-    toast("Obtendo GPS e analisando imagem com IA...", 6000);
+    toast("Obtendo GPS e enviando para a IA analisar...", 6000);
 
     // 1. Obter Geolocalização do GPS do Celular
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(async function(position){
         var lat = position.coords.latitude;
         var lon = position.coords.longitude;
-        
-        // Exemplo de geocodificação reversa gratuita (Nominatim OpenStreetMap)
         try {
           var res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
           var data = await res.json();
           if(data && data.address){
-            var rua = data.address.road || data.address.suburb || "Local via GPS";
-            var bairroName = data.address.suburb || data.address.neighbourhood || data.address.city_district || "Cabo Frio";
-            $("f-log").value = rua;
-            $("f-bairro").value = bairroName;
+            $("f-log").value = data.address.road || "Local via GPS";
+            $("f-bairro").value = data.address.suburb || data.address.neighbourhood || "Cabo Frio";
           }
-        } catch(err){
-          $("f-log").value = "Coordenadas: " + lat.toFixed(4) + ", " + lon.toFixed(4);
-        }
-      }, function(error){
+        } catch(err){}
+      }, function(){
         toast("Não foi possível obter a localização GPS.");
       }, {enableHighAccuracy: true});
     }
 
-    // 2. Simulação de IA Analisando a Foto capturada
-    // Aqui no futuro você pode conectar a resposta da API do seu modelo de visão computacional
-    setTimeout(function(){
-      // Exemplo preenchido automaticamente pela IA simulada
-      $("f-tipo").value = "Tipo A";
-      $("f-vert").value = "Bom";
-      $("f-hor").value = "Regular";
-      $("f-obs").value = "Identificado via IA: Pintura levemente desgastada.";
-      toast("Foto processada e campos preenchidos pela IA!");
-    }, 1500);
+    // 2. Redimensionar/comprimir a foto para não ultrapassar o limite de envio da Vercel (4.5 MB)
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement("canvas");
+      var maxDim = 1024;
+      var w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
+        else { w = Math.round((w * maxDim) / h); h = maxDim; }
+      }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      var base64Image = canvas.toDataURL("image/jpeg", 0.8);
+
+      // 3. Enviar para o teu backend na Vercel
+      fetch("https://prefeitura-cf.vercel.app/api/analisar-lombada", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64Image })
+      })
+      .then(function(res){ return res.json(); })
+      .then(function(dados){
+        if(dados.error){
+          toast("Erro na IA: " + dados.error, 6000);
+          return;
+        }
+        $("f-tipo").value = dados.tipo || "";
+        $("f-vert").value = dados.vertical || "";
+        $("f-hor").value = dados.horizontal || "";
+        $("f-obs").value = dados.observacoes || "";
+        toast("Foto analisada pela IA com sucesso!");
+      })
+      .catch(function(){
+        toast("Erro ao comunicar com o servidor da Vercel.", 6000);
+      });
+    };
+    img.src = URL.createObjectURL(file);
   });
 
   /* ---------- Exportação ---------- */
