@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
 
     const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.8-flash" });
 
     const prompt = `Você é um engenheiro de tráfego especialista em vistorias de lombadas urbanas. 
     Analise esta foto tirada em campo e retorne estritamente um objeto JSON válido (sem blocos de código markdown extras, apenas o JSON) contendo exatamente estes campos:
